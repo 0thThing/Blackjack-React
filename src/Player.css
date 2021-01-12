@@ -1,0 +1,213 @@
+
+.hand-button {
+    margin-top: 1%;
+    color: white;
+    background-color: black;
+    width: 9%;
+    height: 5%;
+    margin-left: 1%;
+    margin-right: 1%;
+
+}
+div.value-area {
+    display: block;
+    vertical-align: middle;
+    horiz-align: center;
+    margin-top: 15px;
+    margin-left: 40%;
+    padding-bottom: 0px;
+    background-color: black;
+    border: 3px solid white;
+    color: white;
+    width: 20%;
+}
+
+div.value-area h2{
+    padding: 1px;
+}
+
+div.dealer-card-area img{
+    width: 65%;
+
+
+}
+
+div.player-cards img{
+    width: 65%;
+    margin: 0px;
+
+
+}
+
+div.dealer-card-area {
+    display: flex;
+    float: top;
+    margin-top: 5px;
+    justify-content: center;
+
+}
+
+div.player-cards {
+    display: inline-block;
+    flex-direction: row;
+    justify-content: center;
+    margin-top: 5px;
+    margin-left: auto;
+    margin-right: auto;
+    border: 3px solid cyan;
+    width: 8%;
+}
+
+div.player-cards img {
+    margin: auto;
+    vertical-align: bottom;
+    width: 65%;
+    display: inline;
+
+
+}
+
+div.player-area{
+    display:block;
+    border: 3px solid grey;
+    align-items: center;
+
+}
+
+div.stats-area {
+    top: 0;
+    position: absolute;
+    background-color: black;
+    border: 3px solid white;
+    color: white;
+    text-align: left;
+    padding-right: 5px;
+    padding-bottom: 5px;
+    padding-top: 5px;
+
+
+
+
+
+
+}
+
+div.stats-area li{
+
+    margin: 0;
+    padding: 0;
+
+
+}
+
+div.stats-area ol{
+
+
+    margin: 0;
+
+
+}
+
+
+
+
+
+
+
+
+
+/*
+*				- https://dribbble.com/shots/6209185-BIG-Jelly-Button
+*
+*/
+
+.hand-button {
+    margin-top: 1%;
+    color: white;
+    background-color: black;
+    width: 9%;
+    height: 5%;
+    margin-left: 1.0%;
+    margin-right: 1.0%;
+
+}
+
+.button {
+    cursor: pointer;
+    position: relative;
+    padding: 2.0rem 6.0rem;
+    border-radius: 3.0rem;
+    line-height: 1.5rem;
+    font-size: 1.7rem;
+    font-weight: 600;
+    padding: 1rem;
+
+    border: 1px solid #012880;
+    background-image: linear-gradient(-180deg, #000000 0%, #DDDDDD 100%);
+    box-shadow: 0 1rem 1.25rem 0 rgba(0,0,0,0.50),
+    0 -0.25rem 1.5rem rgba(0, 0, 0, 1) inset,
+    0 0.75rem 0.5rem rgba(255,255,255, 0.4) inset,
+    0 0.25rem 0.5rem 0 rgba(0, 70, 0, 1) inset;
+}
+
+.button span {
+    color: transparent;
+    background-image: linear-gradient(0deg, #000000 0%, #FFFFFF 100%);
+    -webkit-background-clip: text;
+}
+
+.button::before {
+    content: "";
+    display: block;
+    height: 0.25rem;
+    position: absolute;
+    top: 0.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    width: calc(100% - 7.5rem);
+    background: #fff;
+    border-radius: 100%;
+
+    opacity: 0.7;
+
+}
+
+.button::after {
+    content: "";
+    display: block;
+    height: 0.25rem;
+    position: absolute;
+    bottom: 0.75rem;
+    left: 50%;
+    transform: translateX(-50%);
+    width: calc(100% - 7.5rem);
+    background: #fff;
+    border-radius: 100%;
+
+    filter: blur(1px);
+    opacity: 0.05;
+
+}
+
+.betButtons {
+    display: inline-block;
+    width: 6rem;
+    height: 6rem;
+    font-size: 1.2rem;
+    font-weight: 700;
+    line-height: 5.3333333333rem;
+    text-align: center;
+    color: #393;
+    background: #FFF;
+    border: 0.3333333333rem dashed #393;
+    border-radius: 6rem;
+    transition: all linear 0.2s;
+    box-shadow: 0 0 1rem rgba(0, 0, 0, 0.3);
+    margin: 0 2rem 2rem 0;
+}
+
+.betButtons:hover {
+     background: black;
+     border-color: white;
+     color: black;
+ }
