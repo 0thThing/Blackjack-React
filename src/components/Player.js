@@ -16,7 +16,7 @@ class Player extends React.Component {
     render() {
 
         const currentHand = this.props.cards.map(prop => {
-            return <div style={{display: 'inline-flex', border: '2px solid white'}}><img src={prop.image.png} alt="your cards arent working" className='card'/></div>//I think its this image that keeps giving the error, it needs a key like the suit and value of the card
+            return <div className='single-card'><img src={prop.image.png} alt="your cards arent working" className='card'/></div>//I think its this image that keeps giving the error, it needs a key like the suit and value of the card
         })
 
         return(

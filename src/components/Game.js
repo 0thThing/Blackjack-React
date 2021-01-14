@@ -11,7 +11,7 @@ import BettingArea from "./BettingArea";
 //note: highLowCount state variable is using the high-low card counting strategy that many people may not be familiar with
 //This is deployed with firebase
 
-//todo one thing is the bets are able to be bet without funds and while the round is occuring (which is not how the game works, you cant bet after you've seen your cards)
+
 //todo one thing THE BETTING SYSTEM IS GOOD! just add a place in the game where the player has to draw since before that is the only time you can bet
 
 class Game extends React.Component {
@@ -64,7 +64,8 @@ class Game extends React.Component {
                     playerTotal: newHandValue,
                     isRoundOver: true,
                     userLosses: prevState.userLosses + 1,
-                    message: "you busted, play again?" //I dont really like this but it kind of makes sense since this is one of the ways the round ends
+                    message: "you busted, play again?", //I dont really like this but it kind of makes sense since this is one of the ways the round ends
+                    funds: prevState.funds - prevState.placedBet
                 }
             }
 
@@ -131,7 +132,7 @@ class Game extends React.Component {
             }
             cardList.push(card)
         }
-        console.log('modify for card count: ',hiLowValue)
+
         this.setState(prevState => {
             return {
                 highLowCount: prevState.highLowCount + hiLowValue,
@@ -168,14 +169,17 @@ class Game extends React.Component {
         }
     }
     handleBet (event){
-        console.log(event.target.value)
+        //event.currentTarget.value somehow does not work here and I am unsure why
+
+        let value = event.currentTarget.getAttribute('value')
+        console.log('the amount trying to be added is ', value)
         this.setState(prevState => {
             return {
-            currentBet: prevState.currentBet + Number(event.target.value)
+            currentBet: prevState.currentBet + Number(value)
             }
-        }
-
-    )}
+        })
+        console.log(this.state.currentBet)
+    }
 
 
     resetBet(){
@@ -185,6 +189,7 @@ class Game extends React.Component {
     findWinner (playerTotal, dealerTotal){
         if (dealerTotal === playerTotal) {
             this.setState(prevState => {
+                console.log('prevstate.placed bet is', prevState.placedBet)
 
                 return {
                     userDraws: prevState.userDraws + 1,
@@ -221,7 +226,7 @@ class Game extends React.Component {
 
                 return {
                     userLosses: prevState.userLosses + 1,
-                    funds: prevState.funds - this.state.bet,
+                    funds: prevState.funds - prevState.placedBet,
                     message: 'you lost'
                 }
             })
@@ -319,10 +324,9 @@ class Game extends React.Component {
 //the key for <Dealer> needs to be dealerTotal otherwise the value above dealer cards doesnt go away and new
         //totals just keep being added, maybe its because that part of <dealer> doesnt need to change?
 
-
         return (
 
-            <div style={{border: '3px solid red'}}>
+            <div >
                 <StatsArea key={this.state.highLowCount}
 
                            wins={this.state.userWins}

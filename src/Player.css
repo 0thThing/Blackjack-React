@@ -1,40 +1,38 @@
-
+html {
+    width:100%;
+}
 .hand-button {
     margin-top: 1%;
     color: white;
     background-color: black;
-    width: 9%;
+    width: 8%;
     height: 5%;
     margin-left: 1%;
     margin-right: 1%;
 
 }
 div.value-area {
+    margin-left: 40%;
+    margin-top: 0.8%;
     display: block;
     vertical-align: middle;
     horiz-align: center;
-    margin-top: 15px;
-    margin-left: 40%;
+
     padding-bottom: 0px;
     background-color: black;
     border: 3px solid white;
     color: white;
     width: 20%;
+    max-width: 100%;
 }
 
 div.value-area h2{
-    padding: 1px;
+    padding: 0px;
 }
 
 div.dealer-card-area img{
     width: 65%;
-
-
-}
-
-div.player-cards img{
-    width: 65%;
-    margin: 0px;
+    padding: 0;
 
 
 }
@@ -47,31 +45,45 @@ div.dealer-card-area {
 
 }
 
-div.player-cards {
-    display: inline-block;
-    flex-direction: row;
-    justify-content: center;
-    margin-top: 5px;
-    margin-left: auto;
-    margin-right: auto;
-    border: 3px solid cyan;
-    width: 8%;
+div.single-card {
+    #border: 2px solid black;
+    display: inline;
+    margin: 1%;
+    vertical-align: bottom;
+    max-width: 50%;
+    display: inline;
+    padding: 0;
+    width: 20%;
+
+
 }
 
 div.player-cards img {
-    margin: auto;
-    vertical-align: bottom;
-    width: 65%;
-    display: inline;
+    width: 100%;
+    height: auto;
+}
+div.player-cards {
+
+    display: inline-flex;
+    flex-direction: row;
+    justify-content: center;
+    margin: 3px;
+    #border: 3px solid cyan;
+    width:30%;
+    height:70%;
 
 
 }
 
+
 div.player-area{
     display:block;
-    border: 3px solid grey;
+    #border: 3px solid grey;
     align-items: center;
-
+    height: 28vh;
+    width: 100%;
+    justify-items: center;
+    justify-content: center;
 }
 
 div.stats-area {
@@ -84,10 +96,6 @@ div.stats-area {
     padding-right: 5px;
     padding-bottom: 5px;
     padding-top: 5px;
-
-
-
-
 
 
 }
@@ -125,7 +133,7 @@ div.stats-area ol{
     margin-top: 1%;
     color: white;
     background-color: black;
-    width: 9%;
+    width: 11%;
     height: 5%;
     margin-left: 1.0%;
     margin-right: 1.0%;
@@ -206,8 +214,16 @@ div.stats-area ol{
     margin: 0 2rem 2rem 0;
 }
 
-.betButtons:hover {
-     background: black;
-     border-color: white;
-     color: black;
- }
+
+.betButtons:hover  {
+    transform:rotate(90deg);
+}
+
+.betButtons:hover >  span {
+    display: inline-block;
+    transform:rotate(-90deg);
+}
+
+
+
+

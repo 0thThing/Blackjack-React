@@ -7,7 +7,7 @@ function Message (props){
             backgroundColor: 'black',
             border: '3px solid white',
             color: 'white'}}>
-        <h1>{props.message}</h1></div>
+        <h2>{props.message}</h2></div>
     )
 
 }

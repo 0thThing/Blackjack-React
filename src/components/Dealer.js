@@ -14,19 +14,19 @@ class Dealer extends React.Component {
 
     render() {
         const currentHand = this.props.cards.map(prop => {
-            return <div><img src={prop.image.png} alt="your cards arent working" className='card'/></div>
+            return <div className='single-card'><img src={prop.image.png} alt="your cards arent working" className='card'/></div>
         })
 
 
         return(
 
-            <div>
+            <div className='player-area'>
 
                 <div className='value-area'>
                     <h2> Dealer: {this.props.total}</h2>
                 </div>
 
-                <div className='dealer-card-area'>
+                <div className='player-cards'>
                     {currentHand}
                 </div>
             </div>

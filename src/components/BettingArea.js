@@ -11,11 +11,11 @@ class BettingArea extends React.Component{
     render(){
         return(
         <div style={{display: 'block'}}>
-            <button value='5'  className='betButtons' onClick={this.props.handleBet}>5</button>
-            <button value='10' className='betButtons' onClick={this.props.handleBet}>10</button>
-            <button value='25' className='betButtons' onClick={this.props.handleBet} >25</button>
-            <button className='button hand-button' onClick={this.props.placeBet} >Bet ({this.props.bet})</button>
 
+            <button style={{borderColor: 'red', color: 'red'}}value='5'  className='betButtons' onClick={this.props.handleBet.bind(this)}><span value='5' >5</span></button>
+            <button style={{borderColor: 'blue', color: 'blue'}}value='10' className='betButtons' onClick={this.props.handleBet}><span value='10' >10</span></button>
+            <button style={{borderColor: 'green', color: 'green'}}value='25' className='betButtons' onClick={this.props.handleBet}><span value='25' >25</span></button>
+            <button className='button hand-button' onClick={this.props.placeBet} >Bet ({this.props.bet})</button>
 
         </div>
         )

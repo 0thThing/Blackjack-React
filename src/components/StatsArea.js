@@ -1,6 +1,5 @@
 import React from 'react'
 import '../Player.css'
-//todo make a reset count button for each of these using some kind of trick with [event.target.name] to determine which thing in state to modify
 function StatsArea(props) {
     console.log('props in stats area', props)
     return (
