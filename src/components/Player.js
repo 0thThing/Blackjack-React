@@ -8,7 +8,8 @@ class Player extends React.Component {
         this.state = {
             handValue: 0
         }
-        console.log(this.props)
+
+        console.log('Player has these props: ',this.props)
     }
 
 
@@ -16,7 +17,7 @@ class Player extends React.Component {
     render() {
 
         const currentHand = this.props.cards.map(prop => {
-            return <div className='single-card'><img src={prop.image.png} alt="your cards arent working" className='card'/></div>//I think its this image that keeps giving the error, it needs a key like the suit and value of the card
+            return <div className='single-card' style={{width: '24%'}}><img src={prop.image.png} alt="your cards arent working" className='card'/></div>//I think its this image that keeps giving the error, it needs a key like the suit and value of the card
         })
 
         return(

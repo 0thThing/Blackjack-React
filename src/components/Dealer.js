@@ -7,14 +7,14 @@ class Dealer extends React.Component {
         this.state = {
 
         }
-        console.log('here are the props in dealer', this.props)
+
     }
 
 
 
     render() {
         const currentHand = this.props.cards.map(prop => {
-            return <div className='single-card'><img src={prop.image.png} alt="your cards arent working" className='card'/></div>
+            return <div className='single-card' style={{width: '20%'}} ><img src={prop.image.png} alt="your cards arent working" className='card'/></div>
         })
 
 

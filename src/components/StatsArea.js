@@ -1,7 +1,7 @@
 import React from 'react'
 import '../Player.css'
 function StatsArea(props) {
-    console.log('props in stats area', props)
+
     return (
         <div className='stats-area'>
             <ol>
