@@ -12,7 +12,7 @@ html {
 
 }
 div.value-area {
-    margin-left: 40%;
+    margin-left: 35%;
     margin-top: 0.8%;
     display: block;
     vertical-align: middle;
@@ -22,7 +22,7 @@ div.value-area {
     background-color: black;
     border: 3px solid white;
     color: white;
-    width: 20%;
+    width: 30%;
     max-width: 100%;
 }
 
@@ -84,6 +84,7 @@ div.player-area{
     width: 100%;
     justify-items: center;
     justify-content: center;
+
 }
 
 div.stats-area {
@@ -93,9 +94,7 @@ div.stats-area {
     border: 3px solid white;
     color: white;
     text-align: left;
-    padding-right: 5px;
-    padding-bottom: 5px;
-    padding-top: 5px;
+    padding: 5px;
 
 
 }
@@ -110,7 +109,7 @@ div.stats-area li{
 
 div.stats-area ol{
 
-
+    padding: 5px;
     margin: 0;
 
 
@@ -194,6 +193,14 @@ div.stats-area ol{
 
     filter: blur(1px);
     opacity: 0.05;
+
+}
+
+.betting-area{
+    display:block;
+    width:95%;
+    margin: auto;
+    border: 2px solid black;
 
 }
 

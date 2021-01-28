@@ -9,7 +9,7 @@ import BettingArea from "./BettingArea";
 //not sure how error proof this is, maybe I should have a fetch and .catch in case something goes wrong
 //adding key prop fixed the Player constructor not being called when it was passed new props
 //realized <li> and <ul> have padding you have to explicitly override in css
-//note: highLowCount state variable is using the high-low card counting strategy that many people may not be familiar with
+//note: runningCount state variable is using the high-low card counting strategy that many people may not be familiar with
 //This is deployed with firebase at https://blackjack-65c0d.web.app/
 //todo not sure why handleBet is passed to player and I think it has no purpose
 //todo all the hands should be in the same array of arrays, since implementing split made me have an array of arrays the player hand should be in there to
@@ -34,7 +34,8 @@ class Game extends React.Component {
             userWins: 0,
             userLosses: 0,
             userDraws: 0,
-            highLowCount: 0,
+            runningCount: 0,
+            trueCount: 0,
             funds: 200,
             currentBet: 0,
             placedBet: 0,
@@ -285,9 +286,12 @@ class Game extends React.Component {
         }
 
         this.setState(prevState => {
+            let newRunningCount = prevState.runningCount + hiLowValue
+            let newTrueCount = newRunningCount/(data.remaining/52)
             return {
-                highLowCount: prevState.highLowCount + hiLowValue,
-                cardsRemaining: data.remaining
+                runningCount: prevState.runningCount + hiLowValue,
+                cardsRemaining: data.remaining,
+                trueCount: newTrueCount, //true count is just the running count divided by how many decks are left, to get a concentration of high vs low cards per deck
             }
         })
         return cardList;
@@ -409,7 +413,7 @@ class Game extends React.Component {
         this.setState({
             deckID: data.deck_id,
             cardsRemaining: data.remaining,
-            highLowCount: 0 //count must be set to 0 since the cards are shuffled
+            runningCount: 0 //count must be set to 0 since the cards are shuffled
 
         })
 
@@ -590,14 +594,15 @@ class Game extends React.Component {
         return (
 
             <div >
-                <StatsArea key={this.state.highLowCount}
+                <StatsArea key={this.state.runningCount}
 
                            wins={this.state.userWins}
                            losses={this.state.userLosses}
                            draws={this.state.userDraws}
                            cardsRemaining={this.state.cardsRemaining}
-                           highLowCount={this.state.highLowCount}
+                           runningCount={this.state.runningCount}
                            funds={this.state.funds}
+                           trueCount={this.state.trueCount}
                 />
 
                 <Dealer key={this.state.dealerTotal} cards={this.state.dealerCards} total={this.state.dealerTotal}/>

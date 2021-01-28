@@ -10,7 +10,7 @@ class BettingArea extends React.Component{
 
     render(){
         return(
-        <div style={{display: 'block'}}>
+        <div className='betting-area'>
 
             <button style={{borderColor: 'red', color: 'red'}}value='5'  className='betButtons' onClick={this.props.handleBet.bind(this)}><span value='5' >5</span></button>
             <button style={{borderColor: 'blue', color: 'blue'}}value='10' className='betButtons' onClick={this.props.handleBet}><span value='10' >10</span></button>
