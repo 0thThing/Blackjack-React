@@ -201,6 +201,7 @@ div.stats-area ol{
     width:95%;
     margin: auto;
     border: 2px solid black;
+    bottom: 0;
 
 }
 

@@ -4,6 +4,8 @@ import Player from './Player'
 import Message from './Message'
 import StatsArea from "./StatsArea";
 import BettingArea from "./BettingArea";
+import {BlankCard} from "./BlankCard";
+import ReactCardFlip from "react-card-flip";
 
 //Made by Jordan Lawrence
 //not sure how error proof this is, maybe I should have a fetch and .catch in case something goes wrong
@@ -19,11 +21,11 @@ class Game extends React.Component {
         super(props);
         this.state = {
             remainingHands: 0, //might not actually need this since split hands.length might work as a counter
-            splitHands: [], //This should be a list of lists. where each list is a split hand, and within that list is a list of cards for that hand
-            splitBets: [], //parallel list of bets for the split hands
+            playerHands: [], //This should be a list of lists. where each list is a split hand, and within that list is a list of cards for that hand
+            playerBets: [], //parallel list of bets for the player hands
             dealerCards: [],
             dealerTotal: 0,
-            playerCards: [],
+            playerCards: [],//redundant and was really only used in the first iteration when there was no splitting option
             playerTotal: 0,
             deckID: "",
             cardsRemaining: 0,
@@ -53,7 +55,8 @@ class Game extends React.Component {
         this.handleStay = this.handleStay.bind(this)
         this.totalHandValue = this.totalHandValue.bind(this)
         this.shuffle = this.shuffle.bind(this)
-        this.shuffleAndDraw = this.shuffleAndDraw.bind(this) //think this can be deleted its only used in componentDidMount
+
+
         this.findWinner = this.findWinner.bind(this)
         this.drawCards = this.drawCards.bind(this)
         this.handleDoubleDown = this.handleDoubleDown.bind(this)
@@ -62,13 +65,14 @@ class Game extends React.Component {
         this.checkForBust = this.checkForBust.bind(this)
 
         this.rotateSplitHand = this.rotateSplitHand.bind(this)
-        this.evaluateSplitHands = this.evaluateSplitHands.bind(this)
+        this.evaluateHands = this.evaluateHands.bind(this)
     }
 
     async handleHit(){
         await this.drawPlayerCard()
         this.checkForBust(this.state.playerTotal)
     }
+    
     async drawPlayerCard(){
         //draw a card and set the new state with hand and total
         //callback to figure out if we have busted and if there are more hands to act on and handle all the situations
@@ -76,15 +80,21 @@ class Game extends React.Component {
         let new_card = card
 
         this.setState(prevState => {
-            let newHandValue = this.totalHandValue([...prevState.playerCards, ...new_card])
+
+            let newPlayerCards = [...prevState.playerHands[0], ...new_card]
+            let newHandValue = this.totalHandValue(newPlayerCards)
+            let playerHands = [...prevState.playerHands]
+            playerHands[0] = newPlayerCards
+            // we have to delete the old hand stored in playerHands
+            console.log('the new player hands is ', playerHands)
             console.log('maybe drawPlayer card is the one respoinsible: '+newHandValue)
 
             return {
-                playerCards: [...prevState.playerCards, ...new_card],
-                playerTotal: newHandValue
+                playerCards: newPlayerCards,
+                playerTotal: newHandValue,
+                playerHands: playerHands,
             }
         })
-
 
     }
 
@@ -114,100 +124,121 @@ class Game extends React.Component {
                         message: 'too many, play again?',
                         funds: prevState.funds - prevState.placedBet
                     }
-                },this.evaluateSplitHands(this.state.splitHands,this.state.splitBets)) //we have already taken care of the current player hand and bet so just the possible split hands must be passed in
+                })
+                this.evaluateHands(this.state.playerHands,this.state.playerBets)
             }//EVAL SPLIT HANDS HERE
         }
         return playerBusted
 
     }
 
-    evaluateSplitHands(splitHands, splitBets) {
-        if (splitHands.length === 0) {
-            //we have no split hands so return
-            return
-        }
-        else {
-            let dealerTotal = this.state.dealerTotal
-            let fundAdjustment = 0 //thought this would be easier since I do not want to call setState over and over if it can be avoided
-            for (let i = 0; i < splitHands.length; i++) {
-                let handValue = this.totalHandValue(splitHands[i])
+    evaluateHands(playerHands, playerBets) {//there is something I dont like here and its that the setState for each hand is overwritten if there is more than one hand, which is inefficent
+        let dealerTotal = this.state.dealerTotal
+        let fundAdjustment = 0 //just the sum of the bets lost and won
+        let winCount = 0
+        for (let i = 0; i < playerHands.length; i++) {
+            if(playerBets[i]=== undefined) //this is just so we do not add or subtract undefined
+            {
+                playerBets[i] = 0
+            }
+            let handValue = this.totalHandValue(playerHands[i])
 
-                if (handValue > 21) {
-                    fundAdjustment -= splitBets[i]
-                    console.log('the fund adjustment after loss is now: ',fundAdjustment)
-                    this.setState(prevState => {
+            if (handValue > 21) {
+                fundAdjustment -= playerBets[i]
+                console.log('the fund adjustment after loss is now: ', fundAdjustment)
+                this.setState(prevState => {
 
-                        return {
-                            userLosses: prevState.userLosses + 1,
+                    return {
+                        userLosses: prevState.userLosses + 1,
+                        message: 'its a draw'
+                    }
+                })
+            } else if (dealerTotal === handValue) {
+                //no need to adjust funds since we drew the hand
+                this.setState(prevState => {
 
-                        }
-                    })
-                } else if (dealerTotal === handValue) {
-                    //no need to adjust funds since we drew the hand
-                    this.setState(prevState => {
+                    return {
+                        userDraws: prevState.userDraws + 1,
+                        message: 'you won! :)'
+                    }
+                })
+            } else if ((dealerTotal > 21 && handValue <= 21) || (this.state.dealerTotal < handValue && handValue <= 21)) {
+                fundAdjustment += playerBets[i]
+                winCount++
+                this.setState(prevState => {
+                    console.log('the fund adjustment after win is now: ', fundAdjustment)
 
-                        return {
-                            userDraws: prevState.userDraws + 1,
+                    return {
+                        userWins: prevState.userWins + 1,
+                        message: 'you won! :)'
+                    }
+                })
+            } else {
+                fundAdjustment -= playerBets[i]
+                console.log('the fund adjustment after loss by default is now: ', fundAdjustment)
+                this.setState(prevState => {
 
-                        }
-                    })
-                } else if ((dealerTotal > 21 && handValue <= 21) || (this.state.dealerTotal < handValue && handValue <= 21)) {
-                    fundAdjustment += splitBets[i]
-                    this.setState(prevState => {
-                        console.log('the fund adjustment after win is now: ',fundAdjustment)
-
-                        return {
-                            userWins: prevState.userWins + 1,
-                        }
-                    })
-                }
-                else{
-                    fundAdjustment -= splitBets[i]
-                    console.log('the fund adjustment after loss by default is now: ',fundAdjustment)
-                    this.setState(prevState => {
-
-                        return {
-                            userLosses: prevState.userLosses + 1,
-
-                        }
-                    })
-                }
+                    return {
+                        userLosses: prevState.userLosses + 1,
+                        message: 'you lost :('
+                    }
+                })
             }
 
-            this.setState(prevState => {
-                return{funds: prevState.funds + fundAdjustment}
-            })
-
         }
+
+
+        if(playerHands.length > 1)
+        {
+            this.setState(prevState => {
+
+                return{
+                    funds: prevState.funds + fundAdjustment,
+                    message: 'you won '+winCount+' out of '+playerHands.length+' hands'
+                }
+            })
+        }
+        else
+            {
+            this.setState(prevState => {
+
+                return{
+                    funds: prevState.funds + fundAdjustment,
+
+                }
+            })
+        }
+
     }
 
 
+
     rotateSplitHand(){
-        //this should just rotate the split hand and bet parralel arrays
+        //this should just rotate the playerHands and bet parralel arrays
         this.setState(prevState =>
         {
-            let newSplitHands = [...prevState.splitHands]
-            console.log('the newSplithands cariable in handleStay befoire player cardds', newSplitHands)
-            let newPlayerHand = newSplitHands.shift() //shift is like pop but from the other side, works great!
-            newSplitHands.push(prevState.playerCards)
-            let newPlayerTotal = this.totalHandValue(newPlayerHand)
+            let newPlayerHands = [...prevState.playerHands]
+            let newBetList = [...prevState.playerBets]
+            for (let i = 0; i < newPlayerHands.length-1; i++)
+            {
+                newPlayerHands.push(newPlayerHands.shift()) //this should move the front of the array to the back
+                newBetList.push(newBetList.shift()) //this should move the front of the array to the back
+            }
+            console.log('new player hands will be ' , newPlayerHands)
+            let newPlayerTotal = this.totalHandValue(newPlayerHands[0]) //get the total for the new list at the front
+            let newPlayerBet = newBetList[0]
 
-            let newSplitBets = [...prevState.splitBets]
-            let newPlayerBet = newSplitBets.shift()
-            newSplitBets.push(prevState.placedBet)
 
-
-            //WOW took so long to notice there is a diference between console.log('stuff' + var) and console.log('stuff', var)
+            //WOW there is a difference between console.log('stuff' + var) and console.log('stuff', var)
 
 
             return{
-                playerCards: newPlayerHand,
-                splitHands: newSplitHands,
+
+                playerHands: newPlayerHands,
                 playerTotal: newPlayerTotal,
                 remainingHands: prevState.remainingHands - 1,
-                splitBets: newSplitBets,
+                playerBets: newBetList,
                 placedBet: newPlayerBet,
-
 
             }
         })
@@ -251,15 +282,14 @@ class Game extends React.Component {
             }
         )
         console.log('befoer it goes to find winner player total was: '+this.state.playerTotal)
-        this.findWinner(this.state.playerTotal, this.state.dealerTotal)
 
-        this.evaluateSplitHands(this.state.splitHands,this.state.splitBets)
+        this.evaluateHands(this.state.playerHands,this.state.playerBets)
     }
 
 
 
     async drawCards(amount) {
-        if(this.state.cardsRemaining < 4){//4 seems arbitrary but since drawStartingHands() draws three cards leaving it at 1 will likely cause an error. havent tried it though
+        if(this.state.cardsRemaining < amount ){//simple really, if there arent enough cards to draw from then shuffle a new deck
             await this.shuffle()
         }
 
@@ -317,10 +347,13 @@ class Game extends React.Component {
         }
         else
         {
-            this.setState({
-                placedBet: this.state.currentBet,
-                totalBet: this.state.currentBet,
-                currentBet: 0 //reset the current bet since its been placed
+            this.setState(prevState => {
+                return{
+                    playerBets: [...prevState.playerBets, this.state.currentBet],
+                    totalBet: this.state.currentBet,
+                    currentBet: 0 //reset the current bet since its been placed
+                }
+
             })
         }
     }
@@ -393,17 +426,20 @@ class Game extends React.Component {
     }
 
 
-    clearHands () {
-        this.setState({
-            playerCards: [],
-            dealerCards: [],
-            playerTotal: 0,
-            dealerTotal: 0,
-            isBettingPhase: true,
-            splitHands: [],
-            splitBets: [],
-            totalBet: 0,
-            message: 'place your bet by clicking the poker chips then the button beside them!'
+    clearHands () { //we use prevstate here just so that the last rounds bet will persist through the rounds
+        this.setState(prevState => {
+            return{
+                playerCards: [],
+                dealerCards: [],
+                playerTotal: 0,
+                dealerTotal: 0,
+                isBettingPhase: true,
+                playerHands: [],
+                playerBets: [prevState.betAtRoundStart],
+                totalBet: prevState.betAtRoundStart,
+                message: 'place your bet by clicking the poker chips then the button beside them!'
+            }
+
         })
     }
 
@@ -428,8 +464,10 @@ class Game extends React.Component {
         }
         this.setState(prevState => {
             console.log('the placed bet was: ',prevState.placedBet)
+            let newBets = [...prevState.playerBets]
+            newBets[0] = newBets[0] * 2
             return{
-                placedBet: prevState.placedBet * 2,
+                playerBets: newBets,
                 totalBet: prevState.totalBet + prevState.betAtRoundStart //just update the new totalBet
             }
         })
@@ -458,35 +496,37 @@ class Game extends React.Component {
         console.log(cards)
 
         this.setState(prevState => {
-            console.log('player has these split hands ', [[prevState.playerCards[1], cards[1]], ...prevState.splitHands])
-            let newPlayerTotal = this.totalHandValue([prevState.playerCards[0], cards[0]])
+            console.log('player has these split hands ', [[prevState.playerCards[1], cards[1]], ...prevState.playerHands])
+
+            let newPlayerHand = [prevState.playerHands[0][0],cards[0]] //we create a new hand from the first card in the first hand of the player and a drawn card
+            let newPlayerTotal = this.totalHandValue(newPlayerHand)
+            let splitHand = [prevState.playerHands[0][1], cards[1]] //another hand from the second card in the old player hand and another drawn card
+            let allHands = [...prevState.playerHands]
+            allHands[0] = splitHand//we overwrite the old player hand with one of the hands created
+            allHands.unshift(newPlayerHand) //add the other hand to the front of the list to act as the active hand
+            
 
 
-            //new part here
+            //I think there might be an error here in keeping the arrays parallel
 
 
 
                 return {
                     playerCards: [prevState.playerCards[0], cards[0]],
-                    splitHands: [[prevState.playerCards[1], cards[1]], ...prevState.splitHands],//hopefully this is a list of lists
-                    splitBets: [...prevState.splitBets, prevState.betAtRoundStart],
+                    playerHands: allHands,
+                    playerBets: [...prevState.playerBets, prevState.betAtRoundStart],
                     totalBet: prevState.totalBet + prevState.betAtRoundStart,
                     playerTotal: newPlayerTotal,
                     remainingHands: prevState.remainingHands + 1,
-                    canSplit: prevState.playerCards[0].value === cards[0].value//checking if we can still split again, still need to make sure the other hand can or cant split though
+                    canSplit: prevState.playerHands[0][0].value === cards[0].value//checking if we can still split again, still need to make sure the other hand can or cant split though
                 }
 
         }, () => {
             console.log('player cards are now: ',this.state.playerCards)
-            console.log('the other hand is: ',this.state.splitHands)
+            console.log('the other hand is: ',this.state.playerHands)
         })
     }
 
-    async shuffleAndDraw() { //actually made for the reshuffle button since both these need to be ran after reshuffle is clicked
-            // or else the deck is shuffled and there are no cards and no way to draw a starting hand
-        await this.shuffle()
-        await this.drawStartingHands()
-    }
 
     async componentDidMount() {
         //when the component mounts we start a new deck(we used to draw a hand as well but since you can not bet once the hand is dealt I removed it
@@ -494,7 +534,7 @@ class Game extends React.Component {
     }
 
     async drawStartingHands(){
-        if(this.state.placedBet > this.state.funds) //we have a check against this in placeBet, one thing it does not cover though is losing money until you have a placed bet higher than your funds, that case is what this is for
+        if(this.state.playerBets[0] > this.state.funds) //we have a check against this in placeBet, one thing it does not cover though is losing money until you have a placed bet higher than your funds, that case is what this is for
         {
             alert('your bet is too high! you have to lower your bet to be below the amount of money')
             return;
@@ -518,7 +558,7 @@ class Game extends React.Component {
 
             return {
                 dealerCards: [...newDealerCard],
-                playerCards: [...newPlayerCards],
+                playerHands: [newPlayerCards], //playerHands must be a list of lists of cards so this should be right
                 playerTotal: startPlayerValue,
                 dealerTotal: startDealerValue,
                 isRoundOver: false,
@@ -527,7 +567,7 @@ class Game extends React.Component {
                 canDoubleDown: true,
                 message: 'Good Luck!',
                 remainingHands: 1, //dont like to hard code this but I plan to only call this once at the start since it deals the dealer as well
-                betAtRoundStart: prevState.placedBet
+                betAtRoundStart: prevState.playerBets[0]
             }
         })
 
@@ -570,19 +610,15 @@ class Game extends React.Component {
 
     render() {
 //the key for <Dealer> needs to be dealerTotal otherwise the value above dealer cards doesnt go away and new
-        //totals just keep being added, maybe its because that part of <dealer> doesnt need to change?
+        //totals just keep being added, oh I figured out why, its because the value area is on player and dealer and they might have the same key which messes up React
 
         let splitPlayerHands = null
-        if (this.state.splitHands)//im not even sure I need to check this (I think the empty list evaluates to false anyways)
+        if (this.state.playerHands)//im not even sure I need to check this (I think the empty list evaluates to false anyways)
         {
 
-            /*splitPlayerHands = this.state.splitHands.map((hand, index) => {
-                const bet = this.state.splitBets[index];
-                return <Player key={hand} cards={hand} total={this.totalHandValue(hand)} handleBet={this.handleBet} bet={bet}/>
-            });*/
-            splitPlayerHands = this.state.splitHands.map((hand, index) => {
-                console.log('the index is: ', index)
-                let splitBet = this.state.splitBets[index]
+            splitPlayerHands = this.state.playerHands.map((hand, index) => {
+                console.log('one hand from the map in render: ', hand)
+                let splitBet = this.state.playerBets[index]
                 console.log(splitBet)
                 return <Player key={hand} cards={hand} total={this.totalHandValue(hand)} handleBet={this.handleBet} bet={splitBet}/>
 
@@ -616,7 +652,7 @@ class Game extends React.Component {
                 {this.state.isRoundOver ? this.state.isBettingPhase ? <button className='button hand-button' onClick={this.drawStartingHands}>Deal Hands</button> : <button className='button hand-button' onClick={this.clearHands}>New Hand</button> : <button className='button hand-button' onClick={this.handleHit}>Draw</button>}
                 {!this.state.isRoundOver && <button className='button hand-button' onClick={this.handleStay}>Stay</button>}
                 <button className='button hand-button' onClick={this.handleSplit}>Split</button>
-                <Player key={this.state.playerCards} cards={this.state.playerCards} total={this.totalHandValue(this.state.playerCards)} handleBet={this.handleBet} bet={this.state.placedBet}/>
+                {this.state.isBettingPhase && <Player key={[BlankCard, BlankCard]} cards={[BlankCard, BlankCard]} total={0} handleBet={this.handleBet} bet={this.state.playerBets[0]}/>}
                 {splitPlayerHands}
                 <div style={{display: 'block', marginTop: '1%'}}>
                     <BettingArea handleBet={this.handleBet} placeBet={this.placeBet} bet={this.state.currentBet} doubleDown={this.state.canDoubleDown} doubleBet={this.handleDoubleDown}/>
